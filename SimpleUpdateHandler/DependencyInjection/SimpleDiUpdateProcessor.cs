@@ -6,7 +6,7 @@ namespace SimpleUpdateHandler.DependencyInjection
 {
     public class SimpleDiUpdateProcessor
     {
-        private readonly List<IHandlerContainer> _handlersTypes;
+        private readonly IEnumerable<IHandlerContainer> _handlersTypes;
         private readonly ITelegramBotClient _telegramBotClient;
         private readonly IServiceProvider _serviceProvider;
 
@@ -19,20 +19,13 @@ namespace SimpleUpdateHandler.DependencyInjection
         public SimpleDiUpdateProcessor(
             ITelegramBotClient telegramBotClient,
             IServiceProvider serviceProvider,
-            List<IHandlerContainer>? handlersTypes = default)
+            IEnumerable<IHandlerContainer>? handlersTypes = default)
         {
             _serviceProvider = serviceProvider;
             _handlersTypes = handlersTypes ?? new List<IHandlerContainer>();
             _telegramBotClient = telegramBotClient ??
                 throw new ArgumentNullException(nameof(telegramBotClient));
         }
-
-        /// <summary>
-        /// Adds an <see cref="IHandlerContainer"/> to processor.
-        /// </summary>
-        /// <param name="handlerContainer">Create this using <see cref="SimpleHandlerContainer{T}"/></param>
-        public void AddSimpleHandler(IHandlerContainer handlerContainer)
-            => _handlersTypes.Add(handlerContainer);
 
         /// <summary>
         /// Handles the update.
@@ -45,7 +38,7 @@ namespace SimpleUpdateHandler.DependencyInjection
 
             foreach (var handler in appliedHandlers)
             {
-                using var scope = _serviceProvider.CreateScope();
+                using var scope = _serviceProvider.CreateAsyncScope();
                 var toHandle = (ISimpleDiHandler)scope.ServiceProvider.GetRequiredService(handler.HandlerType);
                 await toHandle.Handle(_telegramBotClient, update);
             }
