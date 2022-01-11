@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.32014.148
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleUpdateHandler", "SimpleUpdateHandler\SimpleUpdateHandler.csproj", "{DF4E6186-9D02-4957-B04D-770BADA8F576}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SimpleUpdateHandlerTests", "SimpleUpdateHandlerTests\SimpleUpdateHandlerTests.csproj", "{18AC8268-BFA3-44E1-A55F-6FBC61A786BD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{DF4E6186-9D02-4957-B04D-770BADA8F576}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF4E6186-9D02-4957-B04D-770BADA8F576}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF4E6186-9D02-4957-B04D-770BADA8F576}.Release|Any CPU.Build.0 = Release|Any CPU
+		{18AC8268-BFA3-44E1-A55F-6FBC61A786BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{18AC8268-BFA3-44E1-A55F-6FBC61A786BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{18AC8268-BFA3-44E1-A55F-6FBC61A786BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{18AC8268-BFA3-44E1-A55F-6FBC61A786BD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
