@@ -40,7 +40,7 @@ namespace SimpleUpdateHandler.DependencyInjection
             {
                 using var scope = _serviceProvider.CreateAsyncScope();
                 var toHandle = (ISimpleDiHandler)scope.ServiceProvider.GetRequiredService(handler.HandlerType);
-                await toHandle.Handle(_telegramBotClient, update);
+                await toHandle.Handle(_telegramBotClient, handler.InnerUpdate!);
             }
         }
     }

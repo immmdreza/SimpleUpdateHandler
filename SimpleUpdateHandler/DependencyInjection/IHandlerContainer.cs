@@ -18,5 +18,10 @@ namespace SimpleUpdateHandler.DependencyInjection
         /// Process priority of handler.
         /// </summary>
         public int Priority { get; }
+
+        /// <summary>
+        /// Inner update which is unknown type here.
+        /// </summary>
+        public object? InnerUpdate { get; }
     }
 }

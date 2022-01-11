@@ -40,13 +40,7 @@ namespace SimpleUpdateHandler
         {
             if (_cachedValue == null)
             {
-                _cachedValue = (T)(typeof(Update).GetProperties()
-                        .Where(x => x.PropertyType is Type type &&
-                            !type.IsEnum &&
-                            type == typeof(T))
-                        .Select(x => x.GetValue(update))
-                        .Where(x => x is not null).Single()
-                    ?? throw new InvalidOperationException("Update can't be null"));
+                _cachedValue = update.GetInnerUpdate<T>();
                 return _cachedValue;
             }
             else
