@@ -10,6 +10,8 @@ namespace SimpleUpdateHandler.DependencyInjection
         private readonly ITelegramBotClient _telegramBotClient;
         private readonly IServiceProvider _serviceProvider;
 
+        public IServiceCollection ServiceDescriptors { get; private init; }
+
         /// <summary>
         /// Creates a new instance of <see cref="SimpleDiUpdateProcessor"/>, base processor for handlers.
         /// </summary>
@@ -18,21 +20,26 @@ namespace SimpleUpdateHandler.DependencyInjection
         /// <exception cref="ArgumentNullException"></exception>
         public SimpleDiUpdateProcessor(
             ITelegramBotClient telegramBotClient,
+            IServiceCollection serviceDescriptors,
             IServiceProvider serviceProvider,
-            List<IHandlerContainer>? handlersTypes = default)
+            IEnumerable<IHandlerContainer>? handlersTypes = default)
         {
-            _serviceProvider = serviceProvider;
-            _handlersTypes = handlersTypes ?? new List<IHandlerContainer>();
+            ServiceDescriptors = serviceDescriptors;
+            _handlersTypes = handlersTypes?.ToList() ?? new List<IHandlerContainer>();
             _telegramBotClient = telegramBotClient ??
                 throw new ArgumentNullException(nameof(telegramBotClient));
+            _serviceProvider = serviceProvider;
         }
 
         /// <summary>
-        /// Adds an <see cref="IHandlerContainer"/> to processor.
+        /// Adds an handler to instance of <see cref="SimpleDiUpdateProcessor"/>
         /// </summary>
-        /// <param name="handlerContainer">Create this using <see cref="SimpleHandlerContainer{T}"/></param>
-        public void AddSimpleHandler(IHandlerContainer handlerContainer)
-            => _handlersTypes.Add(handlerContainer);
+        /// <param name="handlerContainer">Handler container</param>
+        public SimpleDiUpdateProcessor RegisterHandler(IHandlerContainer handlerContainer)
+        {
+            _handlersTypes.Add(handlerContainer);
+            return this;
+        }
 
         /// <summary>
         /// Handles the update.
@@ -45,9 +52,9 @@ namespace SimpleUpdateHandler.DependencyInjection
 
             foreach (var handler in appliedHandlers)
             {
-                using var scope = _serviceProvider.CreateScope();
+                using var scope = _serviceProvider.CreateAsyncScope();
                 var toHandle = (ISimpleDiHandler)scope.ServiceProvider.GetRequiredService(handler.HandlerType);
-                await toHandle.Handle(_telegramBotClient, update);
+                await toHandle.Handle(_telegramBotClient, handler.InnerUpdate!);
             }
         }
     }
