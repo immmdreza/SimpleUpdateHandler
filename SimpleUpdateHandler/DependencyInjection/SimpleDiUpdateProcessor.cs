@@ -6,9 +6,11 @@ namespace SimpleUpdateHandler.DependencyInjection
 {
     public class SimpleDiUpdateProcessor
     {
-        private readonly IEnumerable<IHandlerContainer> _handlersTypes;
+        private readonly List<IHandlerContainer> _handlersTypes;
         private readonly ITelegramBotClient _telegramBotClient;
         private readonly IServiceProvider _serviceProvider;
+
+        public IServiceCollection ServiceDescriptors { get; private init; }
 
         /// <summary>
         /// Creates a new instance of <see cref="SimpleDiUpdateProcessor"/>, base processor for handlers.
@@ -18,13 +20,25 @@ namespace SimpleUpdateHandler.DependencyInjection
         /// <exception cref="ArgumentNullException"></exception>
         public SimpleDiUpdateProcessor(
             ITelegramBotClient telegramBotClient,
+            IServiceCollection serviceDescriptors,
             IServiceProvider serviceProvider,
             IEnumerable<IHandlerContainer>? handlersTypes = default)
         {
-            _serviceProvider = serviceProvider;
-            _handlersTypes = handlersTypes ?? new List<IHandlerContainer>();
+            ServiceDescriptors = serviceDescriptors;
+            _handlersTypes = handlersTypes?.ToList() ?? new List<IHandlerContainer>();
             _telegramBotClient = telegramBotClient ??
                 throw new ArgumentNullException(nameof(telegramBotClient));
+            _serviceProvider = serviceProvider;
+        }
+
+        /// <summary>
+        /// Adds an handler to instance of <see cref="SimpleDiUpdateProcessor"/>
+        /// </summary>
+        /// <param name="handlerContainer">Handler container</param>
+        public SimpleDiUpdateProcessor RegisterHandler(IHandlerContainer handlerContainer)
+        {
+            _handlersTypes.Add(handlerContainer);
+            return this;
         }
 
         /// <summary>
