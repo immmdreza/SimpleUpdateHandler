@@ -7,7 +7,21 @@ using SimpleUpdateHandler.Helpers;
 
 namespace SimpleUpdateHandler
 {
-    public static class SimpleContextExtensions
+    public static class SimpleCallbackQueryContextExtensions
+    {
+        /// <summary>
+        /// Answers a <see cref="CallbackQuery"/>.
+        /// Shortcut for <c>AnswerCallbackQueryAsync</c>
+        /// </summary>
+        public static async Task Answer(this SimpleContext<CallbackQuery> simpleContext, string? text = default,
+                                        bool? showAlert = default, string? url = default, int? cacheTime = default,
+                                        CancellationToken cancellationToken = default)
+            => await simpleContext.Client.AnswerCallbackQueryAsync(simpleContext.Update.Id, text, showAlert, url,
+                                                                   cacheTime, cancellationToken);
+
+    }
+
+    public static class SimpleMessageContextExtensions
     {
         /// <summary>
         /// Quickest possible way to response to a message
@@ -26,20 +40,22 @@ namespace SimpleUpdateHandler
                 simpleContext.Update.Chat.Id,
                 text,
                 parseMode, messageEntities, disableWebpagePreview, disableNotification,
-                replyToMessageId: sendAsReply? simpleContext.Update.MessageId: 0,
+                replyToMessageId: sendAsReply ? simpleContext.Update.MessageId : 0,
                 allowSendingWithoutReply: true,
                 replyMarkup: replyMarkup);
 
         /// <summary>
-        /// Answers a <see cref="CallbackQuery"/>.
-        /// Shortcut for <c>AnswerCallbackQueryAsync</c>
+        /// Message is sent to private chat.
         /// </summary>
-        public static async Task Answer(this SimpleContext<CallbackQuery> simpleContext, string? text = default,
-                                        bool? showAlert = default, string? url = default, int? cacheTime = default,
-                                        CancellationToken cancellationToken = default)
-            => await simpleContext.Client.AnswerCallbackQueryAsync(simpleContext.Update.Id, text, showAlert, url,
-                                                                   cacheTime, cancellationToken);
+        public static bool IsPrivate(this SimpleContext<Message> simpleContext)
+            => simpleContext.Update.Chat.Type == ChatType.Private;
 
+        /// <summary>
+        /// Message is sent to group chat.
+        /// </summary>
+        public static bool IsGroup(this SimpleContext<Message> simpleContext)
+            => simpleContext.Update.Chat.Type == ChatType.Supergroup ||
+                simpleContext.Update.Chat.Type == ChatType.Group;
     }
 
     public static class SimpleContextConditionalExtensions
@@ -70,10 +86,10 @@ namespace SimpleUpdateHandler
         /// Do something when a regex matched.
         /// </summary>
         public static MatchContext<T> If<T>(this SimpleContext<T> simpleContext,
-                                            Func<T, bool> predict,
+                                            Func<SimpleContext<T>, bool> predict,
                                             Action<SimpleContext<T>> func)
         {
-            if (predict(simpleContext.Update))
+            if (predict(simpleContext))
             {
                 func(simpleContext);
                 return new MatchContext<T>(simpleContext, true);
@@ -123,12 +139,12 @@ namespace SimpleUpdateHandler
         /// Do something when a regex not matched but something else matched.
         /// </summary>
         public static MatchContext<T> ElseIf<T>(this MatchContext<T> matchContext,
-                                                Func<T, bool> predict,
+                                                Func<SimpleContext<T>, bool> predict,
                                                 Action<SimpleContext<T>> func)
         {
             if (!matchContext)
             {
-                if (predict(matchContext.SimpleContext.Update))
+                if (predict(matchContext.SimpleContext))
                 {
                     func(matchContext.SimpleContext);
                     return new(matchContext.SimpleContext, true);
@@ -170,10 +186,10 @@ namespace SimpleUpdateHandler
         /// Do something when a regex matched.
         /// </summary>
         public static async Task<MatchContext<T>> If<T>(this SimpleContext<T> simpleContext,
-                                                               Func<T, bool> predict,
+                                                               Func<SimpleContext<T>, bool> predict,
                                                                Func<SimpleContext<T>, Task> func)
         {
-            if (predict(simpleContext.Update))
+            if (predict(simpleContext))
             {
                 await func(simpleContext);
                 return new MatchContext<T>(simpleContext, true);
@@ -224,13 +240,13 @@ namespace SimpleUpdateHandler
         /// Do something when a regex not matched but something else matched.
         /// </summary>
         public static async Task<MatchContext<T>> ElseIf<T>(this Task<MatchContext<T>> matchContext,
-                                                            Func<T, bool> predict,
+                                                            Func<SimpleContext<T>, bool> predict,
                                                             Func<SimpleContext<T>, Task> func)
         {
             var prevMatch = await matchContext;
             if (!prevMatch)
             {
-                if (predict(prevMatch.SimpleContext.Update))
+                if (predict(prevMatch.SimpleContext))
                 {
                     await func(prevMatch.SimpleContext);
                     return new(prevMatch.SimpleContext, true);
