@@ -3,6 +3,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 using System.Text.RegularExpressions;
+using SimpleUpdateHandler.Helpers;
 
 namespace SimpleUpdateHandler
 {
@@ -41,47 +42,95 @@ namespace SimpleUpdateHandler
         /// <summary>
         /// Do something when a regex matched.
         /// </summary>
-        public static async Task OnMatch<T>(this SimpleContext<T> simpleContext,
-                                            Func<T, string> getText,
-                                            string pattern,
-                                            Func<SimpleContext<T>, Task> func,
-                                            RegexOptions? regexOptions = default)
+        public static async Task<MatchContext<T>> IfMatched<T>(this SimpleContext<T> simpleContext,
+                                                               Func<T, string> getText,
+                                                               string pattern,
+                                                               Func<SimpleContext<T>, Task> func,
+                                                               RegexOptions? regexOptions = default)
         {
-            if (Regex.IsMatch(
-                getText(simpleContext.Update), pattern, regexOptions ?? RegexOptions.None))
+            var match = MatchContext<T>.Check(simpleContext, getText, pattern, regexOptions);
+
+            if (match)
             {
                 await func(simpleContext);
             }
+
+            return match;
         }
 
         /// <summary>
         /// Do something when a regex matched.
         /// </summary>
-        public static async Task OnMatch(this SimpleContext<Message> simpleContext,
-                                         string pattern,
-                                         Func<SimpleContext<Message>, Task> func,
-                                         RegexOptions? regexOptions = default)
-        {
-            if (Regex.IsMatch(
-                simpleContext.Update.Text??"", pattern, regexOptions ?? RegexOptions.None))
-            {
-                await func(simpleContext);
-            }
-        }
+        public static async Task<MatchContext<Message>> IfMatched(this SimpleContext<Message> simpleContext,
+                                                                  string pattern,
+                                                                  Func<SimpleContext<Message>, Task> func,
+                                                                  RegexOptions? regexOptions = default)
+            => await simpleContext.IfMatched(pattern, func, regexOptions);
 
         /// <summary>
         /// Do something when a regex matched.
         /// </summary>
-        public static async Task OnMatch(this SimpleContext<CallbackQuery> simpleContext,
-                                         string pattern,
-                                         Func<SimpleContext<CallbackQuery>, Task> func,
-                                         RegexOptions? regexOptions = default)
+        public static async Task<MatchContext<CallbackQuery>> IfMatched(this SimpleContext<CallbackQuery> simpleContext,
+                                                                        string pattern,
+                                                                        Func<SimpleContext<CallbackQuery>, Task> func,
+                                                                        RegexOptions? regexOptions = default)
+            => await simpleContext.IfMatched(pattern, func, regexOptions);
+
+        /// <summary>
+        /// Do something when a regex not matched.
+        /// </summary>
+        public static async Task Else<T>(this MatchContext<T> matchContext,
+                                         Func<SimpleContext<T>, Task> func)
         {
-            if (Regex.IsMatch(
-                simpleContext.Update.Data ?? "", pattern, regexOptions ?? RegexOptions.None))
+            if (!matchContext.IsMatched)
             {
-                await func(simpleContext);
+                await func(matchContext.SimpleContext);
             }
         }
+
+        /// <summary>
+        /// Do something when a regex not matched but something else matched.
+        /// </summary>
+        public static async Task<MatchContext<T>> ElseIf<T>(this MatchContext<T> matchContext,
+                                                            Func<T, string?> getText,
+                                                            string pattern,
+                                                            Func<SimpleContext<T>, Task> func,
+                                                            RegexOptions? regexOptions = default)
+        {
+            if (!matchContext.IsMatched)
+            {
+                var match = MatchContext<T>.Check(matchContext.SimpleContext, getText, pattern, regexOptions);
+
+                if (match)
+                {
+                    await func(matchContext.SimpleContext);
+                }
+
+                return match;
+            }
+
+            return matchContext;
+        }
+
+
+        /// <summary>
+        /// Do something when a regex not matched but something else matched.
+        /// </summary>
+        public static async Task<MatchContext<CallbackQuery>> ElseIf(this MatchContext<CallbackQuery> matchContext,
+                                                                     Func<CallbackQuery, string?> getText,
+                                                                     string pattern,
+                                                                     Func<SimpleContext<CallbackQuery>, Task> func,
+                                                                     RegexOptions? regexOptions = default)
+            => await matchContext.ElseIf(getText, pattern, func, regexOptions);
+
+        /// <summary>
+        /// Do something when a regex not matched but something else matched.
+        /// </summary>
+        public static async Task<MatchContext<Message>> ElseIf(this MatchContext<Message> matchContext,
+                                                                     Func<Message, string?> getText,
+                                                                     string pattern,
+                                                                     Func<SimpleContext<Message>, Task> func,
+                                                                     RegexOptions? regexOptions = default)
+            => await matchContext.ElseIf(getText, pattern, func, regexOptions);
     }
 }
