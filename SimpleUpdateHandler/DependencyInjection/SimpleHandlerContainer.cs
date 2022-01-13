@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace SimpleUpdateHandler.DependencyInjection
 {
@@ -7,9 +8,11 @@ namespace SimpleUpdateHandler.DependencyInjection
         where THandler : SimpleDiHandler<TUpdate>
     {
         public SimpleHandlerContainer(
+            UpdateType updateType,
             SimpleFilter<TUpdate>? filter = default,
             int priority = 0)
         {
+            UpdateType = updateType;
             Filter = filter;
             HandlerType = typeof(THandler);
             Priority = priority;
@@ -22,6 +25,8 @@ namespace SimpleUpdateHandler.DependencyInjection
         public int Priority { get; }
 
         public object? InnerUpdate { get; private set; }
+
+        public UpdateType UpdateType { get; }
 
         /// <summary>
         /// Set or Reset filter.

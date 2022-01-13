@@ -1,4 +1,5 @@
 ﻿using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace SimpleUpdateHandler.DependencyInjection
 {
@@ -8,6 +9,11 @@ namespace SimpleUpdateHandler.DependencyInjection
         /// Type of inner handler.
         /// </summary>
         public Type HandlerType { get; }
+
+        /// <summary>
+        /// Incoming update type for the handler
+        /// </summary>
+        public UpdateType UpdateType { get; }
 
         /// <summary>
         /// Checks if this <see cref="IHandlerContainer"/> should be handled.

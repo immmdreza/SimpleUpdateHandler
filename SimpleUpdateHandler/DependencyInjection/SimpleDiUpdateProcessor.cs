@@ -10,8 +10,6 @@ namespace SimpleUpdateHandler.DependencyInjection
         private readonly ITelegramBotClient _telegramBotClient;
         private readonly IServiceProvider _serviceProvider;
 
-        public IServiceCollection ServiceDescriptors { get; private init; }
-
         /// <summary>
         /// Creates a new instance of <see cref="SimpleDiUpdateProcessor"/>, base processor for handlers.
         /// </summary>
@@ -20,11 +18,9 @@ namespace SimpleUpdateHandler.DependencyInjection
         /// <exception cref="ArgumentNullException"></exception>
         public SimpleDiUpdateProcessor(
             ITelegramBotClient telegramBotClient,
-            IServiceCollection serviceDescriptors,
             IServiceProvider serviceProvider,
             IEnumerable<IHandlerContainer>? handlersTypes = default)
         {
-            ServiceDescriptors = serviceDescriptors;
             _handlersTypes = handlersTypes?.ToList() ?? new List<IHandlerContainer>();
             _telegramBotClient = telegramBotClient ??
                 throw new ArgumentNullException(nameof(telegramBotClient));
@@ -34,12 +30,8 @@ namespace SimpleUpdateHandler.DependencyInjection
         /// <summary>
         /// Adds an handler to instance of <see cref="SimpleDiUpdateProcessor"/>
         /// </summary>
-        /// <param name="handlerContainer">Handler container</param>
-        public SimpleDiUpdateProcessor RegisterHandler(IHandlerContainer handlerContainer)
-        {
-            _handlersTypes.Add(handlerContainer);
-            return this;
-        }
+        public void RegisterHandler(IHandlerContainer handlerContainer)
+            => _handlersTypes.Add(handlerContainer);
 
         /// <summary>
         /// Handles the update.
@@ -47,6 +39,7 @@ namespace SimpleUpdateHandler.DependencyInjection
         public async Task ProcessSimpleHandlerAsync(Update update)
         {
             var appliedHandlers = _handlersTypes
+                .Where(x=> x.UpdateType == update.Type)
                 .Where(x => x.CheckFilter(update))
                 .OrderBy(x => x.Priority);
 

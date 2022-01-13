@@ -57,39 +57,5 @@ namespace SimpleUpdateHandler.DependencyInjection
             serviceDescriptors.AddSingleton(processor);
             return processor;
         }
-
-        /// <summary>
-        /// Register a <see cref="SimpleHandlerContainer{Message, THandler}"/>
-        /// for <see cref="Message"/> updates
-        /// </summary>
-        /// <typeparam name="THandler">The update handler</typeparam>
-        public static SimpleDiUpdateProcessor RegisterMessage<THandler>(
-            this SimpleDiUpdateProcessor diUpdateProcessor,
-            SimpleFilter<Message>? simpleFilter = default,
-            int priority = default)
-            where THandler : SimpleDiHandler<Message>
-        {
-            var container = new SimpleHandlerContainer<Message, THandler>(simpleFilter, priority);
-            diUpdateProcessor.RegisterHandler(container);
-            diUpdateProcessor.ServiceDescriptors.AddScoped(container.HandlerType);
-            return diUpdateProcessor;
-        }
-
-        /// <summary>
-        /// Register a <see cref="SimpleHandlerContainer{CallbackQuery, THandler}"/>
-        /// for <see cref="CallbackQuery"/> updates
-        /// </summary>
-        /// <typeparam name="THandler">The update handler</typeparam>
-        public static SimpleDiUpdateProcessor RegisterCallbackQuery<THandler>(
-            this SimpleDiUpdateProcessor diUpdateProcessor,
-            SimpleFilter<CallbackQuery>? simpleFilter = default,
-            int priority = default)
-            where THandler : SimpleDiHandler<CallbackQuery>
-        {
-            var container = new SimpleHandlerContainer<CallbackQuery, THandler>(simpleFilter, priority);
-            diUpdateProcessor.RegisterHandler(container);
-            diUpdateProcessor.ServiceDescriptors.AddScoped(container.HandlerType);
-            return diUpdateProcessor;
-        }
     }
 }
