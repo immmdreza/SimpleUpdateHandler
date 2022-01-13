@@ -2,6 +2,7 @@
 using Telegram.Bot;
 using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
+using System.Text.RegularExpressions;
 
 namespace SimpleUpdateHandler
 {
@@ -37,5 +38,50 @@ namespace SimpleUpdateHandler
                                         CancellationToken cancellationToken = default)
             => await simpleContext.Client.AnswerCallbackQueryAsync(simpleContext.Update.Id, text, showAlert, url,
                                                                    cacheTime, cancellationToken);
+        /// <summary>
+        /// Do something when a regex matched.
+        /// </summary>
+        public static async Task OnMatch<T>(this SimpleContext<T> simpleContext,
+                                            Func<T, string> getText,
+                                            string pattern,
+                                            Func<SimpleContext<T>, Task> func,
+                                            RegexOptions? regexOptions = default)
+        {
+            if (Regex.IsMatch(
+                getText(simpleContext.Update), pattern, regexOptions ?? RegexOptions.None))
+            {
+                await func(simpleContext);
+            }
+        }
+
+        /// <summary>
+        /// Do something when a regex matched.
+        /// </summary>
+        public static async Task OnMatch(this SimpleContext<Message> simpleContext,
+                                         string pattern,
+                                         Func<SimpleContext<Message>, Task> func,
+                                         RegexOptions? regexOptions = default)
+        {
+            if (Regex.IsMatch(
+                simpleContext.Update.Text??"", pattern, regexOptions ?? RegexOptions.None))
+            {
+                await func(simpleContext);
+            }
+        }
+
+        /// <summary>
+        /// Do something when a regex matched.
+        /// </summary>
+        public static async Task OnMatch(this SimpleContext<CallbackQuery> simpleContext,
+                                         string pattern,
+                                         Func<SimpleContext<CallbackQuery>, Task> func,
+                                         RegexOptions? regexOptions = default)
+        {
+            if (Regex.IsMatch(
+                simpleContext.Update.Data ?? "", pattern, regexOptions ?? RegexOptions.None))
+            {
+                await func(simpleContext);
+            }
+        }
     }
 }
