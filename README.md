@@ -99,11 +99,11 @@ public class HandlerInHandler : SimpleDiHandler<Message>
             {
                 // Send "Hello There!" to user, if the text matches
                 await x.If("^hello ", async y => await y.Response("Hello There!"))
-                    .Else(x=> x.Response("Undefined response."));
+                    .Else(async x=> await x.Response("Undefined response."));
             })
             
             // If the response is null, then it's timed out
-            .Else(x=> x.Response("You're timed out."));
+            .Else(async x => await x.Response("You're timed out."));
     }
 }
 ```
