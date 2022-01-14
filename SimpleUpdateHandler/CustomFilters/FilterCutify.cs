@@ -67,5 +67,10 @@ namespace SimpleUpdateHandler.CustomFilters
         /// </summary>
         public static SimpleFilter<CallbackQuery> CbqOfUsers(params long[] users)
             => new FromUsersCallbackQueryFilter(users);
+
+        /// <summary>
+        /// A replied message.
+        /// </summary>
+        public static SimpleFilter<Message> Replied() => new MessageRepliedFilter();
     }
 }

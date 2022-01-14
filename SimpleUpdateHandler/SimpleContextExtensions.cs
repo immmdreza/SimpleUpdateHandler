@@ -252,7 +252,7 @@ namespace SimpleUpdateHandler
         }
 
         /// <summary>
-        /// Do something when a regex matched.
+        /// Do something when a condition is true.
         /// </summary>
         public static MatchContext<T> If<T>(this SimpleContext<T> simpleContext,
                                             Func<SimpleContext<T>, bool> predict,
@@ -325,6 +325,18 @@ namespace SimpleUpdateHandler
             return matchContext;
         }
 
+        public static MatchContext<T> IfNotNull<T>(this SimpleContext<T>? simpleContext,
+                                                   Action<SimpleContext<T>> func)
+        {
+            if (simpleContext is not null)
+            {
+                func(simpleContext);
+                return new MatchContext<T>(simpleContext, true);
+            }
+
+            return default;
+        }
+
         #endregion
 
         #endregion
@@ -336,10 +348,10 @@ namespace SimpleUpdateHandler
         /// Do something when a regex matched.
         /// </summary>
         public static async Task<MatchContext<T>> If<T>(this SimpleContext<T> simpleContext,
-                                                               Func<T, string?> getText,
-                                                               string pattern,
-                                                               Func<SimpleContext<T>, Task> func,
-                                                               RegexOptions? regexOptions = default)
+                                                        Func<T, string?> getText,
+                                                        string pattern,
+                                                        Func<SimpleContext<T>, Task> func,
+                                                        RegexOptions? regexOptions = default)
         {
             var match = MatchContext<T>.Check(simpleContext, getText, pattern, regexOptions);
 
@@ -354,14 +366,85 @@ namespace SimpleUpdateHandler
         /// <summary>
         /// Do something when a regex matched.
         /// </summary>
+        public static async Task<MatchContext<T>> If<T>(this Task<SimpleContext<T>> simpleContext,
+                                                        Func<T, string?> getText,
+                                                        string pattern,
+                                                        Func<SimpleContext<T>, Task> func,
+                                                        RegexOptions? regexOptions = default)
+        {
+            var gottenContext = await simpleContext;
+
+            var match = MatchContext<T>.Check(gottenContext, getText, pattern, regexOptions);
+
+            if (match)
+            {
+                await func(gottenContext);
+            }
+
+            return match;
+        }
+
+        /// <summary>
+        /// Do something when a condition is true.
+        /// </summary>
         public static async Task<MatchContext<T>> If<T>(this SimpleContext<T> simpleContext,
-                                                               Func<SimpleContext<T>, bool> predict,
-                                                               Func<SimpleContext<T>, Task> func)
+                                                        Func<SimpleContext<T>, bool> predict,
+                                                        Func<SimpleContext<T>, Task> func)
         {
             if (predict(simpleContext))
             {
                 await func(simpleContext);
                 return new MatchContext<T>(simpleContext, true);
+            }
+
+            return default;
+        }
+
+        /// <summary>
+        /// Do something when a condition is true.
+        /// </summary>
+        public static async Task<MatchContext<T>> If<T>(this Task<SimpleContext<T>> simpleContext,
+                                                        Func<SimpleContext<T>, bool> predict,
+                                                        Func<SimpleContext<T>, Task> func)
+        {
+            var gottenContext = await simpleContext;
+
+            if (predict(gottenContext))
+            {
+                await func(gottenContext);
+                return new MatchContext<T>(gottenContext, true);
+            }
+
+            return default;
+        }
+
+        /// <summary>
+        /// If this <see cref="SimpleContext{T}"/> is not null
+        /// </summary>
+        public static async Task<MatchContext<T>> IfNotNull<T>(this SimpleContext<T>? simpleContext,
+                                                               Func<SimpleContext<T>, Task> func)
+        {
+            if (simpleContext is not null)
+            {
+                await func(simpleContext);
+                return new MatchContext<T>(simpleContext, true);
+            }
+
+            return default;
+        }
+
+        /// <summary>
+        /// If this <see cref="SimpleContext{T}"/> is not null
+        /// </summary>
+        public static async Task<MatchContext<T>> IfNotNull<T>(this Task<SimpleContext<T>?> simpleContext,
+                                                               Func<SimpleContext<T>, Task> func)
+        {
+            var gottenContext = await simpleContext;
+
+            if (gottenContext is not null)
+            {
+                await func(gottenContext);
+                return new MatchContext<T>(gottenContext, true);
             }
 
             return default;
