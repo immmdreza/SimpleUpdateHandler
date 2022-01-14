@@ -22,5 +22,15 @@ namespace SimpleUpdateHandler
             return (T)(typeof(Update).GetProperty(update.Type.ToString())?.GetValue(update, null)
                 ?? throw new InvalidOperationException($"Inner update is null for {update.Type}"));
         }
+
+        public static UpdateType? GetUpdateType<T>()
+        {
+            if (Enum.TryParse(typeof(T).Name, out UpdateType result))
+            {
+                return result;
+            }
+
+            return null;
+        }
     }
 }

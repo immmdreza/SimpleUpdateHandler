@@ -28,27 +28,44 @@ namespace SimpleUpdateHandler.CustomFilters
         /// <summary>
         /// The handler will be triggered when a message is a command specified in <paramref name="commands"/>
         /// </summary>
-        public static SimpleFilter<Message>? OnCommand(params string[] commands)
+        public static SimpleFilter<Message> OnCommand(params string[] commands)
             => new CommandFilter(commands);
 
         /// <summary>
         /// The handler will be triggered when a message is a command specified in <paramref name="commands"/>
         /// </summary>
-        public static SimpleFilter<Message>? OnCommand(char prefix = '/', params string[] commands)
+        public static SimpleFilter<Message> OnCommand(char prefix = '/', params string[] commands)
             => new CommandFilter(prefix, commands);
 
         /// <summary>
         /// The handler will be triggered when a regex matchs its text.
         /// </summary>
-        public static SimpleFilter<Message>? TextMatchs(
+        public static SimpleFilter<Message> TextMatchs(
             string pattern, bool catchCaption = false, RegexOptions? regexOptions = default)
                 => new MessageTextRegex(pattern, catchCaption, regexOptions);
 
         /// <summary>
         /// The handler will be triggered when a regex matchs its data.
         /// </summary>
-        public static SimpleFilter<CallbackQuery>? DataMatches(
+        public static SimpleFilter<CallbackQuery> DataMatches(
             string pattern, RegexOptions? regexOptions = default)
             => new CallbackQueryRegex(pattern, regexOptions);
+
+        /// <summary>
+        /// The handler will be triggered when a message sent in private chat
+        /// </summary>
+        public static SimpleFilter<Message> PM() => new PrivateMessageFilter();
+
+        /// <summary>
+        /// A message comes only from specified user(s) is <paramref name="users"/>
+        /// </summary>
+        public static SimpleFilter<Message> MsgOfUsers(params long[] users)
+            => new FromUsersMessageFilter(users);
+
+        /// <summary>
+        /// A callback query comes only from specified user(s) is <paramref name="users"/>
+        /// </summary>
+        public static SimpleFilter<CallbackQuery> CbqOfUsers(params long[] users)
+            => new FromUsersCallbackQueryFilter(users);
     }
 }

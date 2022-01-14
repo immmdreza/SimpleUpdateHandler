@@ -4,7 +4,7 @@ using Telegram.Bot.Types;
 namespace SimpleUpdateHandler
 {
     /// <summary>
-    /// Base interface for <see cref="SimpleHandler{T}"/> to get raid of generic stuff.
+    /// Base interface for <see cref="SimpleSealedHandler{T}"/> to get raid of generic stuff.
     /// </summary>
     public interface ISimpleHandler
     {

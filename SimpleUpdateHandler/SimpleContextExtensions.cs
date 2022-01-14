@@ -19,6 +19,175 @@ namespace SimpleUpdateHandler
             => await simpleContext.Client.AnswerCallbackQueryAsync(simpleContext.Update.Id, text, showAlert, url,
                                                                    cacheTime, cancellationToken);
 
+        /// <summary>
+        /// Edits a message
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static async Task<Message?> Edit(this SimpleContext<CallbackQuery> simpleContext,
+                                                string text,
+                                                ParseMode? parseMode = default,
+                                                IEnumerable<MessageEntity>? messageEntities = default,
+                                                bool? disableWebpagePreview = default,
+                                                InlineKeyboardMarkup? inlineKeyboardMarkup = default,
+                                                CancellationToken cancellationToken = default)
+        {
+            if (simpleContext.Update.InlineMessageId != null)
+            {
+                await simpleContext.Client.EditMessageTextAsync(simpleContext.Update.InlineMessageId,
+                                                                text,
+                                                                parseMode,
+                                                                messageEntities,
+                                                                disableWebpagePreview,
+                                                                inlineKeyboardMarkup,
+                                                                cancellationToken);
+                return null;
+            }
+            else if (simpleContext.Update.Message != null)
+            {
+                return await simpleContext.Client.EditMessageTextAsync(simpleContext.Update.Message.Chat.Id,
+                                                                simpleContext.Update.Message.MessageId,
+                                                                text,
+                                                                parseMode,
+                                                                messageEntities,
+                                                                disableWebpagePreview,
+                                                                inlineKeyboardMarkup,
+                                                                cancellationToken);
+            }
+
+            throw new InvalidOperationException("InlineMessageId and Message are both null!");
+        }
+
+        /// <summary>
+        /// Edits live location of a message
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static async Task<Message?> Edit(this SimpleContext<CallbackQuery> simpleContext,
+                                                double latitude,
+                                                double longitude,
+                                                float? horizontalAccuracy = default,
+                                                int? heading = default,
+                                                int? proximityAlertRadius = default,
+                                                InlineKeyboardMarkup? inlineKeyboardMarkup = default,
+                                                CancellationToken cancellationToken = default)
+        {
+            if (simpleContext.Update.InlineMessageId != null)
+            {
+                await simpleContext.Client.EditMessageLiveLocationAsync(simpleContext.Update.InlineMessageId,
+                                                                        latitude,
+                                                                        longitude,
+                                                                        horizontalAccuracy,
+                                                                        heading,
+                                                                        proximityAlertRadius,
+                                                                        inlineKeyboardMarkup,
+                                                                        cancellationToken);
+                return null;
+            }
+            else if (simpleContext.Update.Message != null)
+            {
+                return await simpleContext.Client.EditMessageLiveLocationAsync(simpleContext.Update.Message.Chat.Id,
+                                                                               simpleContext.Update.Message.MessageId,
+                                                                               latitude,
+                                                                               longitude,
+                                                                               horizontalAccuracy,
+                                                                               heading,
+                                                                               proximityAlertRadius,
+                                                                               inlineKeyboardMarkup,
+                                                                               cancellationToken);
+            }
+
+            throw new InvalidOperationException("InlineMessageId and Message are both null!");
+        }
+
+        /// <summary>
+        /// Edits media of a message
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static async Task<Message?> Edit(this SimpleContext<CallbackQuery> simpleContext,
+                                                string text,
+                                                InputMediaBase inputMediaBase,
+                                                InlineKeyboardMarkup? inlineKeyboardMarkup = default,
+                                                CancellationToken cancellationToken = default)
+        {
+            if (simpleContext.Update.InlineMessageId != null)
+            {
+                await simpleContext.Client.EditMessageMediaAsync(simpleContext.Update.InlineMessageId,
+                                                                inputMediaBase,
+                                                                inlineKeyboardMarkup,
+                                                                cancellationToken);
+                return null;
+            }
+            else if (simpleContext.Update.Message != null)
+            {
+                return await simpleContext.Client.EditMessageMediaAsync(simpleContext.Update.Message.Chat.Id,
+                                                                simpleContext.Update.Message.MessageId,
+                                                                inputMediaBase,
+                                                                inlineKeyboardMarkup,
+                                                                cancellationToken);
+            }
+
+            throw new InvalidOperationException("InlineMessageId and Message are both null!");
+        }
+
+        /// <summary>
+        /// Edits caption of a message
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static async Task<Message?> Edit(this SimpleContext<CallbackQuery> simpleContext,
+                                                string caption,
+                                                ParseMode? parseMode = default,
+                                                IEnumerable<MessageEntity>? messageEntities = default,
+                                                InlineKeyboardMarkup? inlineKeyboardMarkup = default,
+                                                CancellationToken cancellationToken = default)
+        {
+            if (simpleContext.Update.InlineMessageId != null)
+            {
+                await simpleContext.Client.EditMessageCaptionAsync(simpleContext.Update.InlineMessageId,
+                                                                caption,
+                                                                parseMode,
+                                                                messageEntities,
+                                                                inlineKeyboardMarkup,
+                                                                cancellationToken);
+                return null;
+            }
+            else if (simpleContext.Update.Message != null)
+            {
+                return await simpleContext.Client.EditMessageCaptionAsync(simpleContext.Update.Message.Chat.Id,
+                                                                simpleContext.Update.Message.MessageId,
+                                                                caption,
+                                                                parseMode,
+                                                                messageEntities,
+                                                                inlineKeyboardMarkup,
+                                                                cancellationToken);
+            }
+
+            throw new InvalidOperationException("InlineMessageId and Message are both null!");
+        }
+
+        /// <summary>
+        /// Edits reply markup of a message
+        /// </summary>
+        /// <exception cref="InvalidOperationException"></exception>
+        public static async Task<Message?> Edit(this SimpleContext<CallbackQuery> simpleContext,
+                                                InlineKeyboardMarkup? inlineKeyboardMarkup = default,
+                                                CancellationToken cancellationToken = default)
+        {
+            if (simpleContext.Update.InlineMessageId != null)
+            {
+                await simpleContext.Client.EditMessageReplyMarkupAsync(simpleContext.Update.InlineMessageId,
+                                                                       inlineKeyboardMarkup,
+                                                                       cancellationToken);
+                return null;
+            }
+            else if (simpleContext.Update.Message != null)
+            {
+                return await simpleContext.Client.EditMessageReplyMarkupAsync(simpleContext.Update.Message.Chat.Id,
+                                                                              simpleContext.Update.Message.MessageId,
+                                                                              inlineKeyboardMarkup,
+                                                                              cancellationToken);
+            }
+
+            throw new InvalidOperationException("InlineMessageId and Message are both null!");
+        }
     }
 
     public static class SimpleMessageContextExtensions

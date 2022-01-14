@@ -1,4 +1,6 @@
-﻿namespace SimpleUpdateHandler
+﻿using SimpleUpdateHandler.CustomFilters;
+
+namespace SimpleUpdateHandler
 {
     /// <summary>
     /// A simple basic filter
@@ -19,6 +21,15 @@
 
         public static implicit operator Func<T?, bool>(SimpleFilter<T> filter)
             => filter.TheyShellPass;
+
+        public SimpleFilter<T> And(SimpleFilter<T> simpleFilter)
+            => new SimpleAndFilter<T>(this, simpleFilter);
+
+        public SimpleFilter<T> Or(SimpleFilter<T> simpleFilter)
+            => new SimpleOrFilter<T>(this, simpleFilter);
+
+        public SimpleFilter<T> Reverse() => new SimpleReverseFilter<T>(this);
+
 
         public static implicit operator SimpleFilter<T>(Func<T?, bool> filter) => new(filter);
 

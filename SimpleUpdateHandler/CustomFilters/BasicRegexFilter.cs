@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Telegram.Bot.Types;
 
 namespace SimpleUpdateHandler.CustomFilters
 {
@@ -24,6 +25,33 @@ namespace SimpleUpdateHandler.CustomFilters
 
                     return false;
                 })
+        { }
+    }
+    public class CallbackQueryRegex : BasicRegexFilter<CallbackQuery>
+    {
+        public CallbackQueryRegex(
+            string pattern,
+            RegexOptions? regexOptions = RegexOptions.None)
+                : base(x => x?.Data, pattern, regexOptions)
+        {
+        }
+    }
+
+    public class MessageTextRegex : BasicRegexFilter<Message>
+    {
+        public MessageTextRegex(
+            string pattern,
+            bool catchCaption = false,
+            RegexOptions? regexOptions = RegexOptions.None)
+                : base(x =>
+                {
+                    return x switch
+                    {
+                        { Text: { } text } => text,
+                        { Caption: { } caption } when catchCaption => caption,
+                        _ => null
+                    };
+                }, pattern, regexOptions)
         { }
     }
 }
