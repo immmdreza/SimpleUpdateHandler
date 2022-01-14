@@ -80,6 +80,7 @@ public class HandlerInHandler : SimpleDiHandler<Message>
 {
     private readonly SimpleDiUpdateProcessor _processor;
 
+    // Di
     public HandlerInHandler(SimpleDiUpdateProcessor processor)
     {
         _processor = processor;
@@ -87,6 +88,7 @@ public class HandlerInHandler : SimpleDiHandler<Message>
 
     protected override async Task HandleUpdate(SimpleContext<Message> ctx)
     {
+        // Extension method
         await ctx.Response("Say hello ...");
         
         // Wait for a user response in private chat for 30 secs.
