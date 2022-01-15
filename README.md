@@ -62,3 +62,48 @@ public class WebhookController : ControllerBase
 
 4. you're done. you can repeat step 1 to handle different kind of updates.
 And don't forget to register it ( step 2 )
+
+## What else?
+1. ### Carry handlers
+I'm not sure if the naming is related but this type of handlers can help wait for an update inside a hander
+> You need to inject `SimpleDiUpdateProcessor` in your handler ( Example below )
+
+3. ### Dependency injection on handlers
+You can use everything you added to `IServiceCollection` in update handlers ( Just like Controllers, i'm not going to tell more )
+
+3. ### Extensions
+There are a lot of extension methods to help you handle your updates.
+
+Example with a hell of chaining
+```cs
+public class HandlerInHandler : SimpleDiHandler<Message>
+{
+    private readonly SimpleDiUpdateProcessor _processor;
+
+    // Di
+    public HandlerInHandler(SimpleDiUpdateProcessor processor)
+    {
+        _processor = processor;
+    }
+
+    protected override async Task HandleUpdate(SimpleContext<Message> ctx)
+    {
+        // Extension method
+        await ctx.Response("Say hello ...");
+        
+        // Wait for a user response in private chat for 30 secs.
+        await _processor.CarryUserResponse(ctx.Update.From!.Id, privateOnly: true)
+             
+            // Preform an action if response is not null
+            .IfNotNull(async x =>
+            {
+                // Send "Hello There!" to user, if the text matches
+                await x.If("^hello ", async y => await y.Response("Hello There!"))
+                    .Else(async x=> await x.Response("Undefined response."));
+            })
+            
+            // If the response is null, then it's timed out
+            .Else(async x => await x.Response("You're timed out."));
+    }
+}
+```
