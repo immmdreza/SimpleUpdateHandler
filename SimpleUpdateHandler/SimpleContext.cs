@@ -26,5 +26,8 @@ namespace SimpleUpdateHandler
             _telegramBotClient = telegramBotClient ?? throw new ArgumentNullException(nameof(telegramBotClient));
             _update = update;
         }
+
+        public static implicit operator T(SimpleContext<T> simpleContext)
+            => simpleContext.Update;
     }
 }

@@ -9,6 +9,39 @@ namespace SimpleUpdateHandler
 {
     public static class SimpleCallbackQueryContextExtensions
     {
+        public static long SenderId(this SimpleContext<CallbackQuery> simpleContext)
+            => simpleContext.Update.From.Id;
+
+        public static User Sender(this SimpleContext<CallbackQuery> simpleContext)
+            => simpleContext.Update.From;
+
+        public static async Task<Message> Send(this SimpleContext<CallbackQuery> simpleContext,
+                                               string text,
+                                               bool sendAsReply = true,
+                                               ParseMode? parseMode = default,
+                                               IEnumerable<MessageEntity>? messageEntities = default,
+                                               bool? disableWebpagePreview = default,
+                                               bool? disableNotification = default,
+                                               IReplyMarkup? replyMarkup = default)
+        {
+            if (simpleContext.Update.Message is not null)
+            {
+                return await simpleContext.Client.SendTextMessageAsync(simpleContext.Update.Message.Chat.Id,
+                                                                       text,
+                                                                       parseMode,
+                                                                       messageEntities,
+                                                                       disableWebpagePreview,
+                                                                       disableNotification,
+                                                                       replyToMessageId: sendAsReply ? simpleContext.Update.Message.MessageId : 0,
+                                                                       allowSendingWithoutReply: true,
+                                                                       replyMarkup: replyMarkup);
+            }
+            else
+            {
+                throw new InvalidOperationException("Can't send message for inline message calls.");
+            }
+        }
+
         /// <summary>
         /// Answers a <see cref="CallbackQuery"/>.
         /// Shortcut for <c>AnswerCallbackQueryAsync</c>
