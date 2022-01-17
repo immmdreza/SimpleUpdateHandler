@@ -15,14 +15,14 @@ namespace SimpleUpdateHandler
         public static User Sender(this SimpleContext<CallbackQuery> simpleContext)
             => simpleContext.Update.From;
 
-        public static async Task<Message> Send(this SimpleContext<CallbackQuery> simpleContext,
-                                               string text,
-                                               bool sendAsReply = true,
-                                               ParseMode? parseMode = default,
-                                               IEnumerable<MessageEntity>? messageEntities = default,
-                                               bool? disableWebpagePreview = default,
-                                               bool? disableNotification = default,
-                                               IReplyMarkup? replyMarkup = default)
+        public static async Task<SimpleContext<Message>> Send(this SimpleContext<CallbackQuery> simpleContext,
+                                                              string text,
+                                                              bool sendAsReply = true,
+                                                              ParseMode? parseMode = default,
+                                                              IEnumerable<MessageEntity>? messageEntities = default,
+                                                              bool? disableWebpagePreview = default,
+                                                              bool? disableNotification = default,
+                                                              IReplyMarkup? replyMarkup = default)
         {
             if (simpleContext.Update.Message is not null)
             {
@@ -34,7 +34,8 @@ namespace SimpleUpdateHandler
                                                                        disableNotification,
                                                                        replyToMessageId: sendAsReply ? simpleContext.Update.Message.MessageId : 0,
                                                                        allowSendingWithoutReply: true,
-                                                                       replyMarkup: replyMarkup);
+                                                                       replyMarkup: replyMarkup)
+                    .WrapIt(simpleContext.Client);
             }
             else
             {
@@ -56,7 +57,7 @@ namespace SimpleUpdateHandler
         /// Edits a message
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        public static async Task<Message?> Edit(this SimpleContext<CallbackQuery> simpleContext,
+        public static async Task<SimpleContext<Message>?> Edit(this SimpleContext<CallbackQuery> simpleContext,
                                                 string text,
                                                 ParseMode? parseMode = default,
                                                 IEnumerable<MessageEntity>? messageEntities = default,
@@ -84,7 +85,8 @@ namespace SimpleUpdateHandler
                                                                 messageEntities,
                                                                 disableWebpagePreview,
                                                                 inlineKeyboardMarkup,
-                                                                cancellationToken);
+                                                                cancellationToken)
+                    .WrapIt(simpleContext.Client);
             }
 
             throw new InvalidOperationException("InlineMessageId and Message are both null!");
@@ -94,7 +96,7 @@ namespace SimpleUpdateHandler
         /// Edits live location of a message
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        public static async Task<Message?> Edit(this SimpleContext<CallbackQuery> simpleContext,
+        public static async Task<SimpleContext<Message>?> Edit(this SimpleContext<CallbackQuery> simpleContext,
                                                 double latitude,
                                                 double longitude,
                                                 float? horizontalAccuracy = default,
@@ -125,7 +127,8 @@ namespace SimpleUpdateHandler
                                                                                heading,
                                                                                proximityAlertRadius,
                                                                                inlineKeyboardMarkup,
-                                                                               cancellationToken);
+                                                                               cancellationToken)
+                    .WrapIt(simpleContext.Client);
             }
 
             throw new InvalidOperationException("InlineMessageId and Message are both null!");
@@ -135,7 +138,7 @@ namespace SimpleUpdateHandler
         /// Edits media of a message
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        public static async Task<Message?> Edit(this SimpleContext<CallbackQuery> simpleContext,
+        public static async Task<SimpleContext<Message>?> Edit(this SimpleContext<CallbackQuery> simpleContext,
                                                 string text,
                                                 InputMediaBase inputMediaBase,
                                                 InlineKeyboardMarkup? inlineKeyboardMarkup = default,
@@ -155,7 +158,8 @@ namespace SimpleUpdateHandler
                                                                 simpleContext.Update.Message.MessageId,
                                                                 inputMediaBase,
                                                                 inlineKeyboardMarkup,
-                                                                cancellationToken);
+                                                                cancellationToken)
+                    .WrapIt(simpleContext.Client);
             }
 
             throw new InvalidOperationException("InlineMessageId and Message are both null!");
@@ -165,7 +169,7 @@ namespace SimpleUpdateHandler
         /// Edits caption of a message
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        public static async Task<Message?> Edit(this SimpleContext<CallbackQuery> simpleContext,
+        public static async Task<SimpleContext<Message>?> Edit(this SimpleContext<CallbackQuery> simpleContext,
                                                 string caption,
                                                 ParseMode? parseMode = default,
                                                 IEnumerable<MessageEntity>? messageEntities = default,
@@ -190,7 +194,8 @@ namespace SimpleUpdateHandler
                                                                 parseMode,
                                                                 messageEntities,
                                                                 inlineKeyboardMarkup,
-                                                                cancellationToken);
+                                                                cancellationToken)
+                    .WrapIt(simpleContext.Client);
             }
 
             throw new InvalidOperationException("InlineMessageId and Message are both null!");
@@ -200,7 +205,7 @@ namespace SimpleUpdateHandler
         /// Edits reply markup of a message
         /// </summary>
         /// <exception cref="InvalidOperationException"></exception>
-        public static async Task<Message?> Edit(this SimpleContext<CallbackQuery> simpleContext,
+        public static async Task<SimpleContext<Message>?> Edit(this SimpleContext<CallbackQuery> simpleContext,
                                                 InlineKeyboardMarkup? inlineKeyboardMarkup = default,
                                                 CancellationToken cancellationToken = default)
         {
@@ -216,7 +221,8 @@ namespace SimpleUpdateHandler
                 return await simpleContext.Client.EditMessageReplyMarkupAsync(simpleContext.Update.Message.Chat.Id,
                                                                               simpleContext.Update.Message.MessageId,
                                                                               inlineKeyboardMarkup,
-                                                                              cancellationToken);
+                                                                              cancellationToken)
+                    .WrapIt(simpleContext.Client);
             }
 
             throw new InvalidOperationException("InlineMessageId and Message are both null!");
@@ -232,7 +238,7 @@ namespace SimpleUpdateHandler
         /// <param name="text">Text to response</param>
         /// <param name="sendAsReply">To send it as a replied message if possible.</param>
         /// <returns></returns>
-        public static async Task<Message> Response(this SimpleContext<Message> simpleContext, string text,
+        public static async Task<SimpleContext<Message>> Response(this SimpleContext<Message> simpleContext, string text,
                                                    bool sendAsReply = true, ParseMode? parseMode = default,
                                                    IEnumerable<MessageEntity>? messageEntities = default,
                                                    bool? disableWebpagePreview = default,
@@ -244,7 +250,8 @@ namespace SimpleUpdateHandler
                 parseMode, messageEntities, disableWebpagePreview, disableNotification,
                 replyToMessageId: sendAsReply ? simpleContext.Update.MessageId : 0,
                 allowSendingWithoutReply: true,
-                replyMarkup: replyMarkup);
+                replyMarkup: replyMarkup)
+            .WrapIt(simpleContext.Client);
 
         /// <summary>
         /// Message is sent to private chat.
