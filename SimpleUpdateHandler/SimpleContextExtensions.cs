@@ -232,25 +232,66 @@ namespace SimpleUpdateHandler
     public static class SimpleMessageContextExtensions
     {
         /// <summary>
+        /// Deletes a message
+        /// </summary>
+        /// <param name="simpleContext"></param>
+        /// <returns></returns>
+        public static async Task Delete(this SimpleContext<Message> simpleContext)
+            => await simpleContext.Client.DeleteMessageAsync(
+                simpleContext.Update.Chat.Id, simpleContext.Update.MessageId);
+
+        /// <summary>
+        /// Updates a <see cref="Message"/> of your own with removing it and sending a new message.
+        /// </summary>
+        public static async Task<SimpleContext<Message>> ForceUpdate(this SimpleContext<Message> simpleContext,
+                                                                     string text,
+                                                                     bool sendAsReply = true,
+                                                                     ParseMode? parseMode = default,
+                                                                     IEnumerable<MessageEntity>? messageEntities = default,
+                                                                     bool? disableWebpagePreview = default,
+                                                                     bool? disableNotification = default,
+                                                                     IReplyMarkup? replyMarkup = default)
+        {
+            if (simpleContext.Update.From?.Id != simpleContext.Client.BotId)
+                throw new InvalidOperationException("The message should be for the bot it self.");
+
+            await simpleContext.Delete();
+            return await simpleContext.Client.SendTextMessageAsync(simpleContext.Update.Chat.Id,
+                                                                   text,
+                                                                   parseMode,
+                                                                   messageEntities,
+                                                                   disableWebpagePreview,
+                                                                   disableNotification,
+                                                                   replyToMessageId: sendAsReply ? simpleContext.Update.MessageId : 0,
+                                                                   allowSendingWithoutReply: true,
+                                                                   replyMarkup: replyMarkup)
+                .WrapIt(simpleContext.Client);
+        }
+
+        /// <summary>
         /// Quickest possible way to response to a message
         /// Shortcut for <c>SendTextMessageAsync</c>
         /// </summary>
         /// <param name="text">Text to response</param>
         /// <param name="sendAsReply">To send it as a replied message if possible.</param>
         /// <returns></returns>
-        public static async Task<SimpleContext<Message>> Response(this SimpleContext<Message> simpleContext, string text,
-                                                   bool sendAsReply = true, ParseMode? parseMode = default,
-                                                   IEnumerable<MessageEntity>? messageEntities = default,
-                                                   bool? disableWebpagePreview = default,
-                                                   bool? disableNotification = default,
-                                                   IReplyMarkup? replyMarkup = default)
-            => await simpleContext.Client.SendTextMessageAsync(
-                simpleContext.Update.Chat.Id,
-                text,
-                parseMode, messageEntities, disableWebpagePreview, disableNotification,
-                replyToMessageId: sendAsReply ? simpleContext.Update.MessageId : 0,
-                allowSendingWithoutReply: true,
-                replyMarkup: replyMarkup)
+        public static async Task<SimpleContext<Message>> Response(this SimpleContext<Message> simpleContext,
+                                                                  string text,
+                                                                  bool sendAsReply = true,
+                                                                  ParseMode? parseMode = default,
+                                                                  IEnumerable<MessageEntity>? messageEntities = default,
+                                                                  bool? disableWebpagePreview = default,
+                                                                  bool? disableNotification = default,
+                                                                  IReplyMarkup? replyMarkup = default)
+            => await simpleContext.Client.SendTextMessageAsync(simpleContext.Update.Chat.Id,
+                                                               text,
+                                                               parseMode,
+                                                               messageEntities,
+                                                               disableWebpagePreview,
+                                                               disableNotification,
+                                                               replyToMessageId: sendAsReply ? simpleContext.Update.MessageId : 0,
+                                                               allowSendingWithoutReply: true,
+                                                               replyMarkup: replyMarkup)
             .WrapIt(simpleContext.Client);
 
         /// <summary>
